@@ -6,12 +6,46 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+import random
+import time
 
 
 class FocusSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the spider middleware does not modify the
     # passed objects.
+
+    @staticmethod
+    def process_request(request, spider):
+        '''对request对象加上proxy'''
+        proxy = FocusSpiderMiddleware.get_random_proxy()
+        print("this is request ip:" + proxy)
+        request.meta['proxy'] = proxy
+
+    @staticmethod
+    def process_response(request, response, spider):
+        '''对返回的response处理'''
+        # 如果返回的response状态不是200，重新生成当前request对象
+        if response.status != 200:
+            proxy = FocusSpiderMiddleware.get_random_proxy()
+            print("this is response ip:" + proxy)
+            # 对当前reque加上代理
+            request.meta['proxy'] = proxy
+            return request
+        return response
+
+    @staticmethod
+    def get_random_proxy():
+        '''随机从文件中读取proxy'''
+        while 1:
+            with open('/Users/lvhao/PycharmProjects/focus/focus/proxies.txt', 'r') as f:
+                proxies = f.readlines()
+            if proxies:
+                break
+            else:
+                time.sleep(1)
+        proxy = random.choice(proxies).strip()
+        return proxy
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -20,14 +54,16 @@ class FocusSpiderMiddleware(object):
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 
-    def process_spider_input(self, response, spider):
+    @staticmethod
+    def process_spider_input(response, spider):
         # Called for each response that goes through the spider
         # middleware and into the spider.
 
         # Should return None or raise an exception.
         return None
 
-    def process_spider_output(self, response, result, spider):
+    @staticmethod
+    def process_spider_output(response, result, spider):
         # Called with the results returned from the Spider, after
         # it has processed the response.
 
@@ -35,7 +71,8 @@ class FocusSpiderMiddleware(object):
         for i in result:
             yield i
 
-    def process_spider_exception(self, response, exception, spider):
+    @staticmethod
+    def process_spider_exception(response, exception, spider):
         # Called when a spider or process_spider_input() method
         # (from other spider middleware) raises an exception.
 
@@ -43,7 +80,8 @@ class FocusSpiderMiddleware(object):
         # or Item objects.
         pass
 
-    def process_start_requests(self, start_requests, spider):
+    @staticmethod
+    def process_start_requests(start_requests, spider):
         # Called with the start requests of the spider, and works
         # similarly to the process_spider_output() method, except
         # that it doesn’t have a response associated.
@@ -52,5 +90,6 @@ class FocusSpiderMiddleware(object):
         for r in start_requests:
             yield r
 
-    def spider_opened(self, spider):
+    @staticmethod
+    def spider_opened(spider):
         spider.logger.info('Spider opened: %s' % spider.name)
