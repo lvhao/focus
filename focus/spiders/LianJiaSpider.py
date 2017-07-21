@@ -4,7 +4,6 @@ from __future__ import print_function
 import scrapy
 from scrapy.loader import ItemLoader
 from focus.items import FocusItem
-import sys
 
 
 class LianJiaSpider(scrapy.Spider):
