@@ -11,8 +11,7 @@ from scrapy.loader.processors import Join
 
 class FocusItem(scrapy.Item):
     # define the fields for your item here like:
-    print("=> lj esf")
-    input_processor = Join()
+    input_processor = Join(separator='')
     meta_data = {"input_processor": input_processor}
     house_name = scrapy.Field(meta_data)
     house_type = scrapy.Field(meta_data)

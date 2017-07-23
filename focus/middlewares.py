@@ -8,7 +8,7 @@
 from scrapy import signals
 import random
 import time
-
+import os
 
 class FocusSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -19,7 +19,7 @@ class FocusSpiderMiddleware(object):
     def process_request(request, spider):
         '''对request对象加上proxy'''
         proxy = FocusSpiderMiddleware.get_random_proxy()
-        print("this is request ip:" + proxy)
+        print("req use proxy ip:" + proxy)
         request.meta['proxy'] = proxy
 
     @staticmethod
@@ -28,7 +28,7 @@ class FocusSpiderMiddleware(object):
         # 如果返回的response状态不是200，重新生成当前request对象
         if response.status != 200:
             proxy = FocusSpiderMiddleware.get_random_proxy()
-            print("this is response ip:" + proxy)
+            print("resp proxy ip:" + proxy)
             # 对当前reque加上代理
             request.meta['proxy'] = proxy
             return request
@@ -38,7 +38,7 @@ class FocusSpiderMiddleware(object):
     def get_random_proxy():
         '''随机从文件中读取proxy'''
         while 1:
-            with open('/Users/lvhao/PycharmProjects/focus/focus/proxies.txt', 'r') as f:
+            with open(os.getcwd()+'/focus/proxies.txt', 'r') as f:
                 proxies = f.readlines()
             if proxies:
                 break

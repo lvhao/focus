@@ -53,8 +53,8 @@ ROBOTSTXT_OBEY = False
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 # DOWNLOADER_MIDDLEWARES = {
-#     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110,
-#     'focus.middlewares.FocusSpiderMiddleware': 543,
+#      'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110,
+#      'focus.middlewares.FocusSpiderMiddleware': 543,
 # }
 
 # Enable or disable extensions
