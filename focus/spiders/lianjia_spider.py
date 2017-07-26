@@ -3,12 +3,12 @@
 from __future__ import print_function
 
 import scrapy
-from scrapy.loader import ItemLoader
+from focus.items import FocusItemLoader
 
-from focus.items import FocusItem
 import json
-
 LJ_DOMAIN = "https://sz.lianjia.com"
+
+
 class LianJiaSpider(scrapy.Spider):
     name = "lj"
     start_urls = [
@@ -18,12 +18,14 @@ class LianJiaSpider(scrapy.Spider):
     @staticmethod
     def parse_next_page_url(response):
         next_page_url_pattern = response.css("div.house-lst-page-box::attr(page-url)").extract_first()
+        if next_page_url_pattern is None:
+            return None
         page_data_str = response.css("div.house-lst-page-box::attr(page-data)").extract_first()
         page_data = json.loads(page_data_str.encode("utf-8"))
         total_page = int(page_data["totalPage"])
         cur_page = int(page_data["curPage"])
         return ("%s%s" % (LJ_DOMAIN, next_page_url_pattern.format(page=next_page))
-                for next_page in range(cur_page, total_page) if next_page <= total_page)
+                for next_page in range(cur_page, total_page+1) if next_page <= total_page)
 
     @staticmethod
     def parse_detail_page_url(response):
@@ -31,7 +33,7 @@ class LianJiaSpider(scrapy.Spider):
 
     @staticmethod
     def parse_base_house_info(response):
-        house_item = ItemLoader(item=FocusItem(), response=response)
+        house_item = FocusItemLoader(response=response)
         house_item.add_css("house_name", "div.aroundInfo > .communityName > a.info::text")
         house_item.add_css("house_type", "div.houseInfo > .room > .mainInfo::text")
         house_item.add_css("house_build_date", "div.houseInfo > .area > .subInfo::text")
