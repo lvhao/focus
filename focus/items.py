@@ -8,18 +8,10 @@ from __future__ import print_function
 import scrapy
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import Join, TakeFirst, MapCompose
-from functools import partial
 
 
 class FocusItemLoader(ItemLoader):
-    default_input_processor = MapCompose(partial(unicode.encode, encoding="utf-8"))
-    default_output_processor = MapCompose(Join(separator=''), TakeFirst())
-
-    house_name_in = default_input_processor
-    house_type_in = default_input_processor
-    house_area_in = default_input_processor
-    house_district_in = default_input_processor
-    house_build_date_in = default_input_processor
+    default_output_processor = MapCompose(Join(separator=''))
 
     house_name_out = default_output_processor
     house_type_out = default_output_processor
@@ -28,7 +20,8 @@ class FocusItemLoader(ItemLoader):
     house_build_date_out = default_output_processor
 
     def __init__(self, response=None):
-        ItemLoader.__init__(self, item=FocusItem, response=response)
+
+        ItemLoader.__init__(self, item=FocusItem(), response=response)
 
 
 class FocusItem(scrapy.Item):

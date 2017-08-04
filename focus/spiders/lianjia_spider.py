@@ -6,11 +6,11 @@ import scrapy
 from focus.items import FocusItemLoader
 
 import json
-LJ_DOMAIN = "https://sz.lianjia.com"
 
 
 class LianJiaSpider(scrapy.Spider):
     name = "lj"
+    LJ_DOMAIN = "https://sz.lianjia.com"
     start_urls = [
         LJ_DOMAIN + "/ershoufang"
     ]
@@ -24,7 +24,7 @@ class LianJiaSpider(scrapy.Spider):
         page_data = json.loads(page_data_str.encode("utf-8"))
         total_page = int(page_data["totalPage"])
         cur_page = int(page_data["curPage"])
-        return ("%s%s" % (LJ_DOMAIN, next_page_url_pattern.format(page=next_page))
+        return ("%s%s" % (LianJiaSpider.LJ_DOMAIN, next_page_url_pattern.format(page=next_page))
                 for next_page in range(cur_page, total_page+1) if next_page <= total_page)
 
     @staticmethod
@@ -42,15 +42,15 @@ class LianJiaSpider(scrapy.Spider):
         return house_item.load_item()
 
     def parse(self, response):
-        next_page_urls = self.parse_next_page_url(response)
+        next_page_urls = LianJiaSpider.parse_next_page_url(response)
         if next_page_urls is not None:
             for url in next_page_urls:
                 print("pagination_page_url =>", url)
                 yield response.follow(url, callback=self.parse)
 
-        detail_page_urls = self.parse_detail_page_url(response)
+        detail_page_urls = LianJiaSpider.parse_detail_page_url(response)
         if detail_page_urls is not None:
             for url in detail_page_urls:
                 print("detail_page_url =>", url)
                 yield response.follow(url, callback=self.parse)
-        yield self.parse_base_house_info(response)
+        yield LianJiaSpider.parse_base_house_info(response)
