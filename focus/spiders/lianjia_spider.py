@@ -6,6 +6,7 @@ import scrapy
 from focus.items import FocusItemLoader
 
 import json
+import re
 
 
 class LianJiaSpider(scrapy.Spider):
@@ -14,6 +15,15 @@ class LianJiaSpider(scrapy.Spider):
     start_urls = [
         LJ_DOMAIN + "/ershoufang"
     ]
+    HOUSE_UNIQUE_PATTERN = re.compile(r'.*/(?P<unique_flag>\d*)\.html')
+
+    @staticmethod
+    def get_house_unique_flag_from_url(url):
+        if len(url) == 0:
+            return None
+        else:
+            match = LianJiaSpider.HOUSE_UNIQUE_PATTERN.match(url)
+            return match.groupdict().get('unique_flag') if match else None
 
     @staticmethod
     def parse_next_page_url(response):
@@ -34,7 +44,13 @@ class LianJiaSpider(scrapy.Spider):
     @staticmethod
     def parse_base_house_info(response):
         house_item = FocusItemLoader(response=response)
+        url = response.url
+        house_item.add_value("house_id", LianJiaSpider.get_house_unique_flag_from_url(url))
+        house_item.add_value("house_url", url)
         house_item.add_css("house_name", "div.aroundInfo > .communityName > a.info::text")
+        house_item.add_css("house_visit_cnt", "#cartCount::text")
+        house_item.add_css("house_follow_cnt", "#favCount::text")
+        house_item.add_css("house_price", "span.total::text")
         house_item.add_css("house_type", "div.houseInfo > .room > .mainInfo::text")
         house_item.add_css("house_build_date", "div.houseInfo > .area > .subInfo::text")
         house_item.add_css("house_district", "div.areaName > .info > a::text")
