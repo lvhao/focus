@@ -19,7 +19,7 @@ class FocusPipeline(object):
         self.file.close()
 
     def process_item(self, item, spider):
-        if len(item) == 0 or len(item.values()) == 0:
+        if len(item) == 0 or len(item.values()) == 0 or item['house_id']:
             raise DropItem("Ignore empty item")
         jsr = json.dumps(dict(item), ensure_ascii=False, indent=1, encoding='utf-8') + "\n"
         print(jsr)
