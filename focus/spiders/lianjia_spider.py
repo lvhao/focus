@@ -69,4 +69,5 @@ class LianJiaSpider(scrapy.Spider):
             for url in detail_page_urls:
                 print("detail_page_url =>", url)
                 yield response.follow(url, callback=self.parse)
+
         yield LianJiaSpider.parse_base_house_info(response)

@@ -10,6 +10,19 @@ from scrapy.loader import ItemLoader
 from scrapy.loader.processors import Join, TakeFirst
 
 
+class FocusItem(scrapy.Item):
+    house_id = scrapy.Field()
+    house_url = scrapy.Field()
+    house_name = scrapy.Field()
+    house_price = scrapy.Field()
+    house_visit_cnt = scrapy.Field()
+    house_follow_cnt = scrapy.Field()
+    house_type = scrapy.Field()
+    house_area = scrapy.Field()
+    house_district = scrapy.Field()
+    house_build_date = scrapy.Field()
+
+
 class FocusItemLoader(ItemLoader):
     default_input_processor = Join()
     default_output_processor = TakeFirst()
@@ -36,14 +49,4 @@ class FocusItemLoader(ItemLoader):
         ItemLoader.__init__(self, item=FocusItem(), response=response)
 
 
-class FocusItem(scrapy.Item):
-    house_id = scrapy.Field()
-    house_url = scrapy.Field()
-    house_name = scrapy.Field()
-    house_price = scrapy.Field()
-    house_visit_cnt = scrapy.Field()
-    house_follow_cnt = scrapy.Field()
-    house_type = scrapy.Field()
-    house_area = scrapy.Field()
-    house_district = scrapy.Field()
-    house_build_date = scrapy.Field()
+

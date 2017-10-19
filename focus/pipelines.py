@@ -8,20 +8,38 @@
 from __future__ import print_function
 from scrapy.exceptions import DropItem
 import json
+from db import Session, House
 
 
 class FocusPipeline(object):
 
     def open_spider(self, spider):
-        self.file = open('items.json', 'w')
+        pass
 
     def close_spider(self, spider):
-        self.file.close()
+        pass
+
+    @staticmethod
+    def save_2_db(item):
+        house = House()
+        house_attrs = dir(house)
+        item_attrs = dir(item)
+        for i_attr in item_attrs:
+            if hasattr(house_attrs, i_attr):
+                house[i_attr] = item[i_attr]
+
+        session = Session()
+        try:
+            session.add(house)
+            session.commit()
+        finally:
+            session.close()
+
 
     def process_item(self, item, spider):
-        if len(item) == 0 or len(item.values()) == 0 or item['house_id']:
+        if len(item) == 0 or len(item.values()) == 0:
             raise DropItem("Ignore empty item")
-        jsr = json.dumps(dict(item), ensure_ascii=False, indent=1, encoding='utf-8') + "\n"
+        jsr = json.dumps(dict(item), ensure_ascii=False, indent=0, encoding='utf-8') + "\n"
         print(jsr)
-        self.file.write(jsr)
+        FocusPipeline.save_2_db(item)
         return item
