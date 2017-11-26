@@ -29,6 +29,8 @@ class FocusPipeline(object):
             if hasattr(house, attr_name):
                 if attr_name == 'house_area':
                     attr_value = attr_value[0:len(attr_value) - 2]
+                setattr(house, attr_name, attr_value)
+
         session = Session()
         try:
             session.add(house)
