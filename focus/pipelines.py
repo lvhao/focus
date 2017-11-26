@@ -25,11 +25,21 @@ class FocusPipeline(object):
     @staticmethod
     def save_2_db(item):
         house = House()
+
+<< << << < HEAD
         for attr_name, attr_value in dict(item).iteritems():
             if hasattr(house, attr_name):
                 if attr_name == 'house_area':
                     attr_value = attr_value[0:len(attr_value) - 2]
                 setattr(house, attr_name, attr_value)
+== == == =
+house_attrs = house.__dict__
+item_attrs = item.__dict__
+for iattr in item_attrs:
+    if hasattr(house_attrs, iattr):
+        v = getattr(item, iattr)
+        setattr(house, iattr, v)
+>> >> >> > e5b938d4fc46937abbdc0ed00ebffa08d7dba63a
 
         session = Session()
         try:
