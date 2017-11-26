@@ -5,6 +5,7 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/items.html
 from __future__ import print_function
+
 import scrapy
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import Join, TakeFirst
@@ -20,7 +21,7 @@ class FocusItem(scrapy.Item):
     house_type = scrapy.Field()
     house_area = scrapy.Field()
     house_district = scrapy.Field()
-    house_build_date = scrapy.Field()
+    house_build_info = scrapy.Field()
 
 
 class FocusItemLoader(ItemLoader):
@@ -31,15 +32,16 @@ class FocusItemLoader(ItemLoader):
     house_type_in = default_input_processor
     house_area_in = default_input_processor
     house_district_in = default_input_processor
-    house_build_date_in = default_input_processor
+    house_build_info_in = default_input_processor
 
     house_id_out = default_output_processor
     house_url_out = default_output_processor
     house_name_out = default_output_processor
     house_type_out = default_output_processor
+    # house_area_out = MapCompose(TakeFirst, lambda s: s[0:len(s)-2] if s is not None and len(s) > 2 else "")
     house_area_out = default_output_processor
     house_district_out = default_output_processor
-    house_build_date_out = default_output_processor
+    house_build_info_out = default_output_processor
     house_visit_cnt_out = default_output_processor
     house_follow_cnt_out = default_output_processor
     house_price_out = default_output_processor

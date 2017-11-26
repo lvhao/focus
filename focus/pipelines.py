@@ -6,8 +6,11 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 from __future__ import print_function
-from scrapy.exceptions import DropItem
+
 import json
+
+from scrapy.exceptions import DropItem
+
 from db import Session, House
 
 
@@ -22,11 +25,11 @@ class FocusPipeline(object):
     @staticmethod
     def save_2_db(item):
         house = House()
-        house_attrs = dir(house)
-        item_attrs = dir(item)
-        for i_attr in item_attrs:
-            if hasattr(house_attrs, i_attr):
-                house[i_attr] = item[i_attr]
+        for attr_name, attr_value in dict(item).iteritems():
+            if hasattr(house, attr_name):
+                if attr_name == 'house_area':
+                    attr_value = attr_value[0:len(attr_value) - 2]
+                setattr(house, attr_name, attr_value)
 
         session = Session()
         try:
@@ -35,9 +38,8 @@ class FocusPipeline(object):
         finally:
             session.close()
 
-
     def process_item(self, item, spider):
-        if len(item) == 0 or len(item.values()) == 0:
+        if len(item) == 0 or len(item.values()) == 0 or 'house_id' not in dict(item):
             raise DropItem("Ignore empty item")
         jsr = json.dumps(dict(item), ensure_ascii=False, indent=0, encoding='utf-8') + "\n"
         print(jsr)

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import json
+
+from sqlalchemy import Column, Integer, BigInteger, DECIMAL, String
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, BigInteger, String, Date
 from sqlalchemy.orm import sessionmaker
-import json
 
 engine = create_engine("mysql://root:@localhost:3306/focus", echo=True)
 Base = declarative_base()
@@ -18,13 +19,13 @@ class House(Base):
     house_id = Column(BigInteger)
     house_url = Column(String)
     house_name = Column(String)
-    house_price = Column(Integer)
+    house_price = Column(DECIMAL)
     house_visit_cnt = Column(Integer)
     house_follow_cnt = Column(Integer)
     house_type = Column(String)
-    house_area = Column(Integer)
+    house_area = Column(DECIMAL)
     house_district = Column(String)
-    house_build_date = Column(Date)
+    house_build_info = Column(String)
 
     def __repr__(self):
         return json.dump(self)
