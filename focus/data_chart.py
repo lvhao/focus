@@ -3,26 +3,23 @@
 from __future__ import division
 
 import matplotlib
+import numpy as np
 
 matplotlib.use('TkAgg')
 
 import matplotlib.pyplot as plt
 
-plt.rcParams['font.sans-serif'] = ['PingFang']
-from matplotlib.font_manager import FontProperties
+plt.rcParams['font.sans-serif'] = ['simhei']
 
 from db import Session, House
-
-
-def getChineseFont():
-    return FontProperties(fname='/System/Library/Fonts/PingFang.ttc')
 
 
 def get_x_y_data():
     session = Session()
     all_houses = []
     try:
-        all_houses = session.query(House.house_area, House.house_price, House.house_district).all()
+        all_houses = session.query(House.house_area, House.house_price, House.house_district, House.house_follow_cnt,
+                                   House.house_visit_cnt).all()
     finally:
         session.close()
     data_gap = 100
@@ -42,17 +39,74 @@ def get_x_y_data():
     return x, y, all_houses
 
 
-def bar(title=u"房价/数量 直方图", x=[], y=[]):
-    plt.xlabel(u"房屋单价(万元)", fontproperties=getChineseFont())
-    plt.ylabel(u"房子数量(套)", fontproperties=getChineseFont())
+def bar_1(title=u"房价/数量 直方图", x=None, y=None):
+    plt.xlabel(u"房屋单价(万元)")
+    plt.ylabel(u"房子数量(套)")
     plt.figure(1)
-    plt.title(title, fontproperties=getChineseFont())
+    plt.title(title)
     plt.bar(x=x, height=y, color='green', width=80)
 
 
+def bar_2(x=None, all_houses=None):
+    group_labels = tuple([u"%s万" % i for i in x])
+    n_groups = len(group_labels)
+
+    house_visit_cnt_map = {}
+    house_follow_cnt_map = {}
+    for h in all_houses:
+        house_price_key = h.house_price // 100 * 100
+        for data_extent in reversed(x):
+            if house_price_key >= data_extent:
+                house_price_key = data_extent
+                break
+        house_total_visit_count = house_visit_cnt_map.get(house_price_key, 0)
+        house_visit_cnt_map[house_price_key] = house_total_visit_count + h.house_visit_cnt
+
+        house_total_follow_count = house_follow_cnt_map.get(house_price_key, 0)
+        house_follow_cnt_map[house_price_key] = house_total_follow_count + h.house_follow_cnt
+
+    visit_cnts = []
+    follow_cnts = []
+    for data_extent in x:
+        visit_cnts.append(house_visit_cnt_map[data_extent])
+        follow_cnts.append(house_follow_cnt_map[data_extent])
+
+    means_visit_cnt = tuple(visit_cnts)
+    std_visit = ([0] * len(group_labels))
+
+    means_follow_cnt = tuple(follow_cnts)
+    std_follow = ([0] * len(group_labels))
+
+    fig, ax = plt.subplots()
+
+    index = np.arange(n_groups)
+    bar_width = 100
+
+    opacity = 0.4
+    error_config = {'ecolor': '0.3'}
+
+    ax.bar(index * 250, means_follow_cnt, bar_width,
+           alpha=opacity, color='b',
+           yerr=std_follow, error_kw=error_config,
+           label=u"关注量")
+
+    ax.bar(index * 250 + bar_width, means_visit_cnt, bar_width,
+           alpha=opacity, color='r',
+           yerr=std_visit, error_kw=error_config,
+           label=u"到访量")
+
+    ax.set_xlabel(u"单价")
+    ax.set_ylabel(u"数量")
+    ax.set_title(u"房价 关注/到访")
+    ax.set_xticks(index * 250 + bar_width / 2)
+    ax.set_xticklabels(group_labels)
+    ax.legend()
+    fig.tight_layout()
+
+
 def pie_1(title=u"房价与数量占比", x=[], y=[]):
-    plt.figure(2)
-    plt.title(title, fontproperties=getChineseFont())
+    plt.figure(3)
+    plt.title(title)
     total_cnt = sum(y)
     labels = [u"%s万+" % (i * 100) for i in range(2, 10)]
     fracs = [(s / total_cnt) * 100 for s in y]
@@ -69,8 +123,8 @@ def pie_2(title=u"区域与房子数量饼图", all_houses=[]):
         district = house.house_district.split()[0]
         cnt = districts.get(district, 0) + 1
         districts.update({district: cnt})
-    plt.figure(3)
-    plt.title(title, fontproperties=getChineseFont())
+    plt.figure(4)
+    plt.title(title)
     y = districts.values()
     total_cnt = sum(y)
     labels = [u"%s" % lb.decode('utf-8') for lb in districts.keys()]
@@ -82,11 +136,13 @@ def pie_2(title=u"区域与房子数量饼图", all_houses=[]):
 
 
 def show():
+    (x, y, all_houses) = get_x_y_data()
+    bar_1(x=x, y=y)
+    bar_2(x=x, all_houses=all_houses)
+    pie_1(x=x, y=y)
+    pie_2(all_houses=all_houses)
     plt.show()
 
 
-(x, y, all_houses) = get_x_y_data()
-bar(x=x, y=y)
-pie_1(x=x, y=y)
-# pie_2(all_houses=all_houses)
-show()
+if __name__ == "__main__":
+    show()
