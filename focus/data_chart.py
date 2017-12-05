@@ -130,7 +130,6 @@ def pie_1(title=u"房价与数量占比", x=None, y=None):
 
     fig = plt.figure()
     fig.add_subplot(121)
-    plt.title(title)
     total_cnt = sum(y)
     labels = [u"%s万+" % (i * 100) for i in range(2, 10)]
     fracs = [(s / total_cnt) * 100 for s in y]
@@ -139,6 +138,7 @@ def pie_1(title=u"房价与数量占比", x=None, y=None):
     plt.axes(aspect=1)
     explode = [0.08 if idx in idxs else 0 for idx, v in enumerate(fracs)]
     plt.pie(x=fracs, labels=labels, autopct='%.0f%%', explode=explode)
+    plt.title(title)
 
 
 def pie_2(title=u"区域与房子数量饼图", all_houses=None):
@@ -165,6 +165,7 @@ def pie_2(title=u"区域与房子数量饼图", all_houses=None):
     explode = [0] * len(y)
     explode[1] = 1
     plt.pie(x=fracs, labels=labels, autopct='%.0f%%', explode=explode)
+    plt.title(title)
 
 
 def bar_3(all_houses=None):
